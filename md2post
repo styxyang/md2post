@@ -1,4 +1,4 @@
-#! /usr/bin/perl -w
+#! /usr/bin/env perl -w
 # This is a perl script I used to genenrate a Jekyll/Octopress page
 # from my existing markdown notes.
 # I write down notes in markdown format at ease but they are
@@ -7,6 +7,7 @@
 
 use strict;
 use Getopt::Std;
+use v5.14;
 # use vars qw/$note_dir, $post_dir/;
 
 my $note_dir = "/Users/styx/Dropbox/notes/blogs/";
@@ -64,13 +65,15 @@ print POST "tags: [".$tags."]\n";
 print POST $dash."\n\n";
 
 # Simply copy the content
-while (<MDFILE>) {
-    if ($_ =~ /^\#/) {
-        print POST "#".$_;
-    } else {
-        print POST $_;
-    }
+my $text;
+{
+  local $/;
+  $text = <MDFILE>;
 }
+print $text;
+my $text_out = $text =~ s/^(\#+\s.+\n)$/\#$1/mgr; # add a `#' to the headings line
+print POST $text_out;
+
 close MDFILE;
 close POST;
 print "${\($year+1900)}-${\($mon+1)}-$day argument count is ", scalar @ARGV, "\n";
