@@ -11,8 +11,8 @@ use Data::Dumper;
 use v5.14;
 # use vars qw/$note_dir, $post_dir/;
 
-my $note_dir = "/Users/styx/Dropbox/notes/blogs/";
-my $post_dir = "/Users/styx/zion/styx-hy.com/_posts/";
+my $note_dir = "the directory of your blogs";
+my $post_dir = "the directory of your _posts";
 
 my %args;
 my ($infile, $outfile);

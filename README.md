@@ -24,3 +24,11 @@ We will get html like this
         int main() {
             return 0;
         }
+
+What the script do:
+
+- Transform blog articles written at ease into jekyll blog format
+  - add blog metadata at the beginning
+  - use current time for default blog time
+  - fix code blocks' spaces/tabs at front
+- Specify output and input directory
