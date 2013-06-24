@@ -7,6 +7,7 @@
 
 use strict;
 use Getopt::Std;
+use Data::Dumper;
 use v5.14;
 # use vars qw/$note_dir, $post_dir/;
 
@@ -70,10 +71,40 @@ my $text;
   local $/;
   $text = <MDFILE>;
 }
-print $text;
-my $text_out = $text =~ s/^(\#+\s.+\n)$/\#$1/mgr; # add a `#' to the headings line
-print POST $text_out;
+
+# Strip any lines consisting only of spaces and tabs.
+# This makes subsequent regexen easier to write, because we can
+# match consecutive blank lines with /\n+/ instead of something
+# contorted like /[ \t]*\n+/ .
+$text =~ s/^[ \t]+$//mg;
+
+$text =~ s/^(\#+\s.+\n)$/\#$1/mg; # add a `#' to the headings line
+
+# Deal with code blocks
+my $indent = 2;
+$text =~ s{
+	    (?:\n\n|\A)          # $1 = the code block -- one or more lines, starting with a space/tab
+	    (
+	      (?:
+		(?:[ ]{$indent} | \t)  # Lines must start with a tab or a tab-width of spaces
+		.*\n+
+	      )+
+	    )
+	    # ((?=^[ ]{0,$indent}\S)|\Z) # Lookahead for non-space at line-start, or end of doc
+	}{
+	  my $cb = $1;
+	  my $this_indent;
+	  $cb =~ m/^([ ]*)/mg;
+	  $indent = length $1 if ($indent < length $1); # determine the indent only by the first line of code block
+	  # $cb =~ s/^(?:\s*\n|\s*\z)//mg; # remove trailing blank lines
+	  $cb =~ s/^[ ]{$indent}//mg;
+	  "\n\n{% highlight c %}\n" . $cb . "{% endhighlight %}\n\n";
+	  # $cb;
+	}egmx;
+
+print POST $text;
 
 close MDFILE;
 close POST;
 print "${\($year+1900)}-${\($mon+1)}-$day argument count is ", scalar @ARGV, "\n";
+
